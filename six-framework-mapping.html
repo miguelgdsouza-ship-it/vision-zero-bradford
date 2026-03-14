@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Six-Framework Road Safety Mapping | Vision Zero Bradford</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:#0c0c18;color:#f0f0f0;font-family:'DM Sans',sans-serif;padding:28px 20px}
+.container{max-width:1200px;margin:0 auto}
+h1{font-family:'Instrument Serif',Georgia,serif;font-size:28px;font-weight:400;margin:0 0 4px;color:#fff}
+.subtitle{color:#777;font-size:13px;margin:0;line-height:1.5}
+.tabs{display:flex;gap:4px;margin:20px 0;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:0 0;color:#777;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s}
+.tab-btn.active{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff}
+.tab-btn:hover{border-color:rgba(255,255,255,.2)}
+.fw-row{margin-bottom:12px}
+.fw-label{font-size:10px;text-transform:uppercase;letter-spacing:1.8px;margin-bottom:6px;font-weight:600;opacity:.8}
+.fw-items{display:flex;flex-wrap:wrap;gap:6px}
+.fw-item{padding:8px 14px;border-radius:8px;border:2px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);color:#999;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:400;transition:all .15s}
+.fw-item:hover{border-color:rgba(255,255,255,.15)}
+.fw-item.selected{font-weight:600;color:#fff}
+.fw-item.connected{background:rgba(255,255,255,.06);color:#ddd}
+.fw-item.dimmed{color:#444}
+.conn-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.conn-dot.strong{background:rgba(34,197,94,.8)}
+.conn-dot.moderate{background:rgba(234,179,8,.6)}
+.detail-panel{margin-top:20px;background:#141428;border-radius:12px;padding:24px}
+.detail-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.detail-bar{width:4px;height:24px;border-radius:2px}
+.detail-title{font-family:'Instrument Serif',Georgia,serif;font-size:16px;font-weight:400;margin:0}
+.detail-fw{font-size:11px;font-weight:500}
+.detail-count{font-size:12px;color:#888;margin-bottom:12px}
+.detail-group{margin-bottom:16px}
+.detail-group-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:6px}
+.detail-conn{padding:8px 12px;margin-bottom:4px;background:rgba(255,255,255,.03);border-radius:6px;border-left:3px solid}
+.detail-conn.strong{border-left-color:#22c55e}
+.detail-conn.moderate{border-left-color:rgba(234,179,8,.5)}
+.detail-conn-name{font-size:13px;font-weight:500;color:#ddd;margin-bottom:2px}
+.detail-conn-note{font-size:11px;color:#888;line-height:1.4}
+.hint{font-size:12px;color:#555;margin-top:16px;font-style:italic}
+.rsf-detail{margin-top:8px;padding:8px 10px;background:rgba(255,255,255,.02);border-radius:6px;font-size:11px;color:#777;line-height:1.5}
+.rsf-detail strong{color:#aaa;font-weight:500}
+.layer-row{margin-bottom:8px;padding:16px 20px;border-radius:12px;position:relative}
+.layer-header{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.layer-type{font-size:9px;text-transform:uppercase;letter-spacing:2px;font-weight:700;min-width:130px}
+.layer-name{font-family:'Instrument Serif',Georgia,serif;font-size:15px;color:#ddd}
+.layer-items{display:flex;flex-wrap:wrap;gap:6px;margin-left:142px}
+.layer-item{padding:6px 12px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#ccc;font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.layer-item:hover{background:rgba(255,255,255,.1)}
+.layer-badge{font-size:9px;color:#666;background:rgba(255,255,255,.05);padding:2px 6px;border-radius:4px}
+.layer-arrow{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);color:#333;font-size:14px;z-index:2}
+.layer-legend{margin-top:16px;padding:16px;background:rgba(255,255,255,.03);border-radius:10px;font-size:11px;color:#777;line-height:1.6}
+.matrix-controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.matrix-controls span{font-size:12px;color:#888}
+.matrix-controls select{background:#1a1a2e;color:#ddd;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px 10px;font-size:13px;font-family:'DM Sans',sans-serif}
+.matrix-wrap{overflow-x:auto}
+table{border-collapse:separate;border-spacing:3px;width:100%;min-width:700px}
+th{padding:8px 4px;font-size:11px;font-weight:500;text-align:center;line-height:1.3;max-width:120px}
+td.row-label{padding:8px 10px;font-size:12px;font-weight:500;border-right:1px solid rgba(255,255,255,.05);line-height:1.3}
+td.cell{padding:3px;text-align:center}
+.cell-inner{padding:10px 4px;border-radius:6px;min-height:36px;display:flex;align-items:center;justify-content:center;position:relative}
+.cell-inner.strong-cell{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3)}
+.cell-inner.moderate-cell{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.15)}
+.cell-inner.empty-cell{background:rgba(255,255,255,.015);border:1px solid transparent}
+.cell-dot{width:10px;height:10px;border-radius:50%}
+.cell-dot.strong{background:rgba(34,197,94,.8)}
+.cell-dot.moderate{background:rgba(234,179,8,.6)}
+.tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e1e36;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:10px 14px;font-size:11px;color:#ccc;line-height:1.4;white-space:normal;width:280px;z-index:100;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.cell-inner:hover .tooltip{display:block}
+.observations{margin-top:28px;padding:20px;background:rgba(255,255,255,.025);border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+.observations h3{font-family:'Instrument Serif',Georgia,serif;font-size:16px;font-weight:400;margin:0 0 12px}
+.observations p{font-size:13px;color:#aaa;line-height:1.7;margin:0 0 10px}
+.observations p:last-child{margin-bottom:0}
+.observations strong{color:#ccc}
+@media(max-width:768px){.layer-items{margin-left:0}.layer-type{min-width:auto;display:block;margin-bottom:4px}.layer-header{flex-direction:column;gap:4px}body{padding:16px 12px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div style="margin-bottom:28px">
+    <h1>Six-Framework Road Safety Mapping</h1>
+    <p class="subtitle">Vision Zero (philosophy) &rarr; Safe System (approach) &rarr; 6 E's (interventions) &rarr; Fatal 5 (targets) | UN Decade (international policy) | NPCC (policing strategy) | DfT Road Safety Factors (evidence base)</p>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-view="explorer" onclick="switchView('explorer')">Node Explorer</button>
+    <button class="tab-btn" data-view="layers" onclick="switchView('layers')">Layer View</button>
+    <button class="tab-btn" data-view="matrix" onclick="switchView('matrix')">Pair Matrix</button>
+  </div>
+  <div id="view-explorer"></div>
+  <div id="view-layers" style="display:none"></div>
+  <div id="view-matrix" style="display:none"></div>
+  <div class="observations">
+    <h3>Key Observations: Adding the RSF Dimension</h3>
+    <p><strong>RSFs are the evidence bridge between the Fatal 5 and the Safe System</strong>: the DfT deliberately designed the six RSF sections to align with Safe System pillars, but what makes them operationally powerful is that they capture what police officers actually record at the scene. They translate the abstract Safe System into measurable, attributable data. For VZB, this means every intervention you design under any framework can ultimately be evaluated against RSF trends in Bradford's collision data.</p>
+    <p><strong>The Speed RSF section is now the largest category in fatal collisions (56%)</strong>: this is because the RSF definition of "speed" is broader than the old Fatal 4 definition. It now includes loss of control, aggressive/dangerous/reckless driving, and travelling too fast for conditions, not just exceeding the speed limit. This has significant implications for how Bradford reports its speed-related KSI figures and how you frame VZB speed interventions.</p>
+    <p><strong>RSF "Behaviour or Inexperience" is the most densely connected section</strong>: it maps to Safe Road Users, all five Fatal 5 behaviours, Education/Engagement/Enforcement in the E's, and both "Changing Minds" and "Tackling Crime" in the NPCC pillars. Ineffective observation (B4) alone appears in 48-58% of all collisions, making it the single most commonly recorded factor nationally.</p>
+    <p><strong>The Road and Vehicle RSF sections remain underrecorded</strong>: at only 16-22% and 4-6% of collisions respectively. This creates a systematic bias toward user-blame in the evidence base, which is fundamentally at odds with the Safe System principle that the system, not the user, should bear responsibility. VZB should explicitly acknowledge this limitation when using RSF data to inform engineering interventions.</p>
+    <p><strong>The CF-to-RSF transition creates a data discontinuity</strong>: West Yorkshire is recording some data as RSFs with 95% coverage, while the transition is ongoing. Bradford's analysts need to be cautious about comparing pre-2024 CF-mapped data with directly recorded RSF data, as DfT analysis shows significant step changes in recording patterns (particularly a doubling of "overshot junction" and "passing too close" factors).</p>
+    <p><strong>Safe Road Users remains the most connected node across all six frameworks</strong>: it now connects to all five Fatal 5 behaviours, four of the six E's at primary strength, three NPCC pillars, the UN Safer Road Users pillar, and four of the six RSF sections. This confirms it as the convergence point of the entire system, and the strongest argument for cross-directorate ownership within Bradford's governance structure.</p>
+  </div>
+</div>
+<script>
+const FW={
+  unDecade:{name:"UN Decade of Action Pillars",shortName:"UN Decade",layer:"International Policy",color:"#f59e0b",items:[
+    {id:"u_management",label:"Road Safety Management"},{id:"u_roads",label:"Safer Roads & Mobility"},
+    {id:"u_vehicles",label:"Safer Vehicles"},{id:"u_users",label:"Safer Road Users"},{id:"u_postcrash",label:"Post-Crash Response"}
+  ]},
+  safeSystem:{name:"Safe System Pillars",shortName:"Safe System",layer:"Approach",color:"#3b82f6",items:[
+    {id:"ss_speeds",label:"Safe Speeds"},{id:"ss_roads",label:"Safe Roads & Roadsides"},
+    {id:"ss_vehicles",label:"Safe Vehicles"},{id:"ss_users",label:"Safe Road Users"},{id:"ss_postcrash",label:"Post-Crash Response"}
+  ]},
+  rsf:{name:"DfT Road Safety Factors (STATS19)",shortName:"RSFs",layer:"Evidence Base",color:"#14b8a6",items:[
+    {id:"rsf_speed",label:"S: Speed Related"},
+    {id:"rsf_behaviour",label:"B: Behaviour or Inexperience"},
+    {id:"rsf_distraction",label:"D: Distraction or Impairment"},
+    {id:"rsf_road",label:"R: Road"},
+    {id:"rsf_nmru",label:"P: Non-Motorised Road Users / PPT"},
+    {id:"rsf_vehicles",label:"V: Vehicles"}
+  ]},
+  es:{name:"The 6 E's of Intervention",shortName:"6 E's",layer:"Interventions",color:"#8b5cf6",items:[
+    {id:"e_engineering",label:"Engineering"},{id:"e_enforcement",label:"Enforcement"},
+    {id:"e_education",label:"Education"},{id:"e_engagement",label:"Encouragement / Engagement"},
+    {id:"e_evaluation",label:"Evaluation"},{id:"e_emergency",label:"Emergency Response"}
+  ]},
+  npcc:{name:"NPCC Roads Policing Pillars",shortName:"NPCC",layer:"Policing Strategy",color:"#ec4899",items:[
+    {id:"n_preventing",label:"Preventing Harm & Saving Lives"},{id:"n_tackling",label:"Tackling Crime on Roads"},
+    {id:"n_technology",label:"Driving Technology & Innovation"},{id:"n_changing",label:"Changing Minds"}
+  ]},
+  fatal5:{name:"Fatal 5 Behaviours",shortName:"Fatal 5",layer:"Targets",color:"#ef4444",items:[
+    {id:"f_speed",label:"Inappropriate / Excessive Speed"},{id:"f_seatbelts",label:"Not Wearing Seatbelts"},
+    {id:"f_distraction",label:"Driver Distractions"},{id:"f_impairment",label:"Driving Under the Influence"},
+    {id:"f_careless",label:"Careless & Inconsiderate Driving"}
+  ]}
+};
+
+const C=[
+  // === SAFE SYSTEM <> 6 E's ===
+  {from:"ss_speeds",to:"e_engineering",s:"strong",n:"Speed-reducing infrastructure: 20mph zones, traffic calming, variable limits, road geometry"},
+  {from:"ss_speeds",to:"e_enforcement",s:"strong",n:"Speed cameras (fixed, mobile, average), targeted operations, graduated penalties"},
+  {from:"ss_speeds",to:"e_education",s:"strong",n:"Speed awareness courses, school programmes, young driver interventions"},
+  {from:"ss_speeds",to:"e_engagement",s:"moderate",n:"Community Speedwatch, employer fleet policies, neighbourhood 20mph campaigns"},
+  {from:"ss_speeds",to:"e_evaluation",s:"moderate",n:"Before/after speed surveys, collision factor analysis, attitude tracking"},
+  {from:"ss_speeds",to:"e_emergency",s:"moderate",n:"Speed determines injury severity and response protocol complexity"},
+  {from:"ss_roads",to:"e_engineering",s:"strong",n:"Forgiving design: median barriers, roundabouts, segregated lanes, self-explaining roads"},
+  {from:"ss_roads",to:"e_evaluation",s:"strong",n:"Route risk assessment, collision cluster analysis, road safety audits"},
+  {from:"ss_roads",to:"e_enforcement",s:"moderate",n:"Compliance with road works, weight restrictions, access controls"},
+  {from:"ss_roads",to:"e_engagement",s:"moderate",n:"Community input to scheme design, co-production of local safety improvements"},
+  {from:"ss_vehicles",to:"e_engineering",s:"strong",n:"AEB, ISA, Lane Assist, Euro NCAP standards, crashworthiness design"},
+  {from:"ss_vehicles",to:"e_evaluation",s:"strong",n:"Euro NCAP testing, fleet safety ratings, emerging technology assessment"},
+  {from:"ss_vehicles",to:"e_enforcement",s:"moderate",n:"Vehicle roadworthiness checks, MOT compliance, commercial vehicle standards"},
+  {from:"ss_users",to:"e_education",s:"strong",n:"Driver training, licensing standards, hazard perception, school road safety"},
+  {from:"ss_users",to:"e_enforcement",s:"strong",n:"Policing the Fatal 5 behaviours, diversionary courses"},
+  {from:"ss_users",to:"e_engagement",s:"strong",n:"Behaviour change campaigns, employer programmes, community partnerships"},
+  {from:"ss_users",to:"e_evaluation",s:"moderate",n:"Attitudinal surveys, behaviour observation studies, demographic analysis"},
+  {from:"ss_postcrash",to:"e_emergency",s:"strong",n:"Golden hour response, trauma care pathways, HEMS deployment, rehabilitation"},
+  {from:"ss_postcrash",to:"e_evaluation",s:"strong",n:"Outcome data, response time analysis, survival rates, lessons learned"},
+  {from:"ss_postcrash",to:"e_engineering",s:"moderate",n:"Post-collision investigation informing future design"},
+  // === SAFE SYSTEM <> NPCC ===
+  {from:"ss_speeds",to:"n_preventing",s:"strong",n:"Speed management directly prevents death and serious injury"},
+  {from:"ss_speeds",to:"n_tackling",s:"strong",n:"Excessive speed is a criminal offence: enforcement disrupts offending"},
+  {from:"ss_speeds",to:"n_technology",s:"strong",n:"Camera technology, telematics, vehicle-activated signs"},
+  {from:"ss_speeds",to:"n_changing",s:"strong",n:"Shifting cultural norms on acceptable speeds"},
+  {from:"ss_roads",to:"n_preventing",s:"strong",n:"Safe infrastructure prevents harm regardless of user behaviour"},
+  {from:"ss_roads",to:"n_technology",s:"moderate",n:"ITS, smart motorways, connected infrastructure"},
+  {from:"ss_vehicles",to:"n_technology",s:"strong",n:"Vehicle tech as force multiplier: ANPR, telematics, ISA"},
+  {from:"ss_vehicles",to:"n_preventing",s:"moderate",n:"Vehicle safety standards reduce harm in collisions"},
+  {from:"ss_users",to:"n_changing",s:"strong",n:"Behavioural change is central to safe road user outcomes"},
+  {from:"ss_users",to:"n_preventing",s:"strong",n:"Addressing risky behaviour prevents harm before it occurs"},
+  {from:"ss_users",to:"n_tackling",s:"strong",n:"Criminal driving behaviour: drink/drug drive, dangerous driving"},
+  {from:"ss_postcrash",to:"n_preventing",s:"strong",n:"Rapid response saves lives post-collision"},
+  // === SAFE SYSTEM <> FATAL 5 ===
+  {from:"ss_speeds",to:"f_speed",s:"strong",n:"Direct alignment: Safe Speeds pillar exists to address this factor"},
+  {from:"ss_speeds",to:"f_careless",s:"moderate",n:"Speed management also addresses careless driving behaviours"},
+  {from:"ss_roads",to:"f_speed",s:"strong",n:"Road design controls speeds through geometry"},
+  {from:"ss_roads",to:"f_careless",s:"strong",n:"Forgiving design mitigates consequences of careless errors"},
+  {from:"ss_roads",to:"f_distraction",s:"moderate",n:"Clear road environment reduces cognitive overload"},
+  {from:"ss_vehicles",to:"f_seatbelts",s:"strong",n:"Vehicle restraint systems, reminder technology, ISOFIX"},
+  {from:"ss_vehicles",to:"f_speed",s:"strong",n:"ISA, speed limiters, telematics in vehicles"},
+  {from:"ss_vehicles",to:"f_distraction",s:"moderate",n:"HMI design, driving mode features"},
+  {from:"ss_users",to:"f_speed",s:"strong",n:"Driver behaviour on speed choice"},
+  {from:"ss_users",to:"f_seatbelts",s:"strong",n:"Wearing compliance as user behaviour"},
+  {from:"ss_users",to:"f_distraction",s:"strong",n:"Driver attention and cognitive engagement"},
+  {from:"ss_users",to:"f_impairment",s:"strong",n:"Decision to drive while impaired is a user behaviour"},
+  {from:"ss_users",to:"f_careless",s:"strong",n:"Driving standards, attitude, and consideration for others"},
+  {from:"ss_postcrash",to:"f_speed",s:"moderate",n:"High-speed collisions require specialist response"},
+  {from:"ss_postcrash",to:"f_seatbelts",s:"moderate",n:"Unbelted casualties sustain more severe injuries"},
+  {from:"ss_postcrash",to:"f_impairment",s:"moderate",n:"Impaired casualties complicate clinical assessment"},
+  // === 6 E's <> NPCC ===
+  {from:"e_engineering",to:"n_preventing",s:"strong",n:"Designing out harm: infrastructure and vehicle solutions"},
+  {from:"e_engineering",to:"n_technology",s:"strong",n:"Engineering enables technological innovation"},
+  {from:"e_enforcement",to:"n_tackling",s:"strong",n:"Core police function: enforcing road traffic law"},
+  {from:"e_enforcement",to:"n_preventing",s:"strong",n:"Visible enforcement deters dangerous behaviour"},
+  {from:"e_enforcement",to:"n_technology",s:"strong",n:"Camera technology, ANPR, mobile phone detection"},
+  {from:"e_enforcement",to:"n_changing",s:"moderate",n:"Enforcement shifts perceived risk and social norms"},
+  {from:"e_education",to:"n_changing",s:"strong",n:"Education is the primary mechanism for changing minds"},
+  {from:"e_education",to:"n_preventing",s:"moderate",n:"Informed road users make safer choices"},
+  {from:"e_engagement",to:"n_changing",s:"strong",n:"Community engagement and partnerships shift culture"},
+  {from:"e_engagement",to:"n_preventing",s:"moderate",n:"Community ownership of road safety prevents harm locally"},
+  {from:"e_evaluation",to:"n_technology",s:"strong",n:"Data, analytics, and evidence-based policing"},
+  {from:"e_evaluation",to:"n_preventing",s:"moderate",n:"Evidence base directs resources to highest harm"},
+  {from:"e_emergency",to:"n_preventing",s:"strong",n:"Rapid response prevents death post-collision"},
+  // === 6 E's <> FATAL 5 ===
+  {from:"e_engineering",to:"f_speed",s:"strong",n:"Traffic calming, 20mph zones, road geometry, variable speed limits"},
+  {from:"e_engineering",to:"f_careless",s:"strong",n:"Forgiving design, junction redesign, VRU segregation"},
+  {from:"e_engineering",to:"f_seatbelts",s:"moderate",n:"Vehicle seatbelt reminder systems, ISOFIX, interlocks"},
+  {from:"e_engineering",to:"f_distraction",s:"moderate",n:"Road environment clarity, signage consistency"},
+  {from:"e_engineering",to:"f_impairment",s:"moderate",n:"Alcohol interlocks, night-time environment design"},
+  {from:"e_enforcement",to:"f_speed",s:"strong",n:"Speed cameras, targeted operations, average speed corridors"},
+  {from:"e_enforcement",to:"f_seatbelts",s:"strong",n:"Targeted seatbelt operations, child restraint enforcement"},
+  {from:"e_enforcement",to:"f_distraction",s:"strong",n:"Phone detection cameras, plain-clothes operations"},
+  {from:"e_enforcement",to:"f_impairment",s:"strong",n:"Drink/drug drive campaigns, roadside testing"},
+  {from:"e_enforcement",to:"f_careless",s:"strong",n:"Op Snap dashcam reports, close-pass operations"},
+  {from:"e_education",to:"f_speed",s:"strong",n:"Speed awareness courses, school programmes"},
+  {from:"e_education",to:"f_seatbelts",s:"strong",n:"THINK! campaigns, child seat clinics"},
+  {from:"e_education",to:"f_distraction",s:"strong",n:"Cognitive distraction awareness, simulator experiences"},
+  {from:"e_education",to:"f_impairment",s:"strong",n:"Rehabilitation courses, prescription medication risks"},
+  {from:"e_education",to:"f_careless",s:"strong",n:"Driver CPC, hazard perception, Exchanging Places"},
+  {from:"e_engagement",to:"f_speed",s:"strong",n:"Community Speedwatch, employer fleet policies"},
+  {from:"e_engagement",to:"f_seatbelts",s:"strong",n:"Workplace policies, faith/community leader advocacy"},
+  {from:"e_engagement",to:"f_distraction",s:"strong",n:"Tech sector partnerships, pledge campaigns"},
+  {from:"e_engagement",to:"f_impairment",s:"strong",n:"Night-time economy partnerships, employer policies"},
+  {from:"e_engagement",to:"f_careless",s:"strong",n:"Cycling/walking advocacy, community reporting"},
+  {from:"e_evaluation",to:"f_speed",s:"moderate",n:"Speed survey data, contributory factor trends"},
+  {from:"e_evaluation",to:"f_seatbelts",s:"moderate",n:"Observational wearing surveys, hospital outcome data"},
+  {from:"e_evaluation",to:"f_distraction",s:"moderate",n:"STATS19 analysis, naturalistic driving studies"},
+  {from:"e_evaluation",to:"f_impairment",s:"moderate",n:"BAC/drug prevalence in fatals, reoffending rates"},
+  {from:"e_evaluation",to:"f_careless",s:"moderate",n:"Contributory factor trends, close-pass data mapping"},
+  {from:"e_emergency",to:"f_speed",s:"moderate",n:"High-speed collisions: specialist extrication"},
+  {from:"e_emergency",to:"f_seatbelts",s:"strong",n:"Unbelted ejection creates complex scenes"},
+  {from:"e_emergency",to:"f_impairment",s:"moderate",n:"Antisocial hours, toxicology preservation"},
+  {from:"e_emergency",to:"f_careless",s:"moderate",n:"Wide injury spectrum, chain-reaction scenes"},
+  {from:"e_emergency",to:"f_distraction",s:"moderate",n:"No pre-impact braking = high-energy collisions"},
+  // === NPCC <> FATAL 5 ===
+  {from:"n_preventing",to:"f_speed",s:"strong",n:"Speed management is core prevention"},
+  {from:"n_preventing",to:"f_seatbelts",s:"strong",n:"Seatbelt compliance directly prevents death"},
+  {from:"n_preventing",to:"f_distraction",s:"strong",n:"Targeting distraction prevents collisions"},
+  {from:"n_preventing",to:"f_impairment",s:"strong",n:"Removing impaired drivers prevents harm"},
+  {from:"n_preventing",to:"f_careless",s:"strong",n:"Addressing poor driving standards prevents VRU harm"},
+  {from:"n_tackling",to:"f_speed",s:"strong",n:"Excessive speed as criminal offence"},
+  {from:"n_tackling",to:"f_impairment",s:"strong",n:"Drink/drug driving as criminal offence"},
+  {from:"n_tackling",to:"f_careless",s:"strong",n:"Dangerous driving prosecution"},
+  {from:"n_tackling",to:"f_distraction",s:"moderate",n:"Mobile phone offence enforcement"},
+  {from:"n_tackling",to:"f_seatbelts",s:"moderate",n:"Seatbelt non-compliance as gateway to other offending"},
+  {from:"n_technology",to:"f_speed",s:"strong",n:"Camera technology, telematics, ISA"},
+  {from:"n_technology",to:"f_distraction",s:"strong",n:"Phone detection cameras, driving mode tech"},
+  {from:"n_technology",to:"f_impairment",s:"moderate",n:"Roadside drug testing technology"},
+  {from:"n_technology",to:"f_seatbelts",s:"moderate",n:"Seatbelt reminder systems"},
+  {from:"n_technology",to:"f_careless",s:"moderate",n:"Dashcam evidence, ADAS technology"},
+  {from:"n_changing",to:"f_speed",s:"strong",n:"Shifting acceptability of speeding"},
+  {from:"n_changing",to:"f_seatbelts",s:"strong",n:"Normalising seatbelt wearing"},
+  {from:"n_changing",to:"f_distraction",s:"strong",n:"Phone-free driving as social norm"},
+  {from:"n_changing",to:"f_impairment",s:"strong",n:"Social unacceptability of drink/drug driving"},
+  {from:"n_changing",to:"f_careless",s:"strong",n:"Raising driving standards expectation"},
+  // === UN DECADE <> SAFE SYSTEM ===
+  {from:"u_management",to:"ss_speeds",s:"strong",n:"National speed legislation and data frameworks"},
+  {from:"u_management",to:"ss_roads",s:"strong",n:"Infrastructure investment policy and standards"},
+  {from:"u_management",to:"ss_vehicles",s:"strong",n:"Vehicle standards legislation and regulation"},
+  {from:"u_management",to:"ss_users",s:"strong",n:"Licensing, training standards, and legal frameworks"},
+  {from:"u_roads",to:"ss_roads",s:"strong",n:"Direct alignment: safe walking, cycling, mobility infrastructure"},
+  {from:"u_roads",to:"ss_speeds",s:"moderate",n:"Speed management integral to safe mobility design"},
+  {from:"u_vehicles",to:"ss_vehicles",s:"strong",n:"Direct alignment: roadworthiness and safety standards"},
+  {from:"u_users",to:"ss_users",s:"strong",n:"Direct alignment: campaigns on seatbelts, helmets, alcohol, speed"},
+  {from:"u_users",to:"ss_speeds",s:"moderate",n:"Speed behaviour campaigns within user pillar"},
+  {from:"u_postcrash",to:"ss_postcrash",s:"strong",n:"Direct alignment: enhanced emergency care"},
+  // === UN DECADE <> 6 E's ===
+  {from:"u_management",to:"e_evaluation",s:"strong",n:"Data systems and evidence-based policy"},
+  {from:"u_management",to:"e_enforcement",s:"strong",n:"Legislative framework enables enforcement"},
+  {from:"u_management",to:"e_engineering",s:"moderate",n:"Standards and investment frameworks"},
+  {from:"u_roads",to:"e_engineering",s:"strong",n:"Infrastructure design and construction"},
+  {from:"u_vehicles",to:"e_engineering",s:"strong",n:"Vehicle safety engineering and standards"},
+  {from:"u_vehicles",to:"e_evaluation",s:"moderate",n:"NCAP testing and technology assessment"},
+  {from:"u_users",to:"e_education",s:"strong",n:"Public campaigns and driver training"},
+  {from:"u_users",to:"e_engagement",s:"strong",n:"Behaviour change through community engagement"},
+  {from:"u_users",to:"e_enforcement",s:"moderate",n:"Compliance with seatbelt, helmet, alcohol laws"},
+  {from:"u_postcrash",to:"e_emergency",s:"strong",n:"Emergency medical care and rehabilitation"},
+  // === UN DECADE <> NPCC ===
+  {from:"u_management",to:"n_technology",s:"strong",n:"Data systems, analytics, evidence-based policing"},
+  {from:"u_management",to:"n_preventing",s:"moderate",n:"Legislation supporting prevention"},
+  {from:"u_users",to:"n_changing",s:"strong",n:"User behaviour campaigns align with changing minds"},
+  {from:"u_users",to:"n_tackling",s:"moderate",n:"Compliance enforcement on behavioural offences"},
+  {from:"u_roads",to:"n_preventing",s:"moderate",n:"Safe infrastructure prevents harm"},
+  {from:"u_vehicles",to:"n_technology",s:"moderate",n:"Vehicle technology innovation"},
+  {from:"u_postcrash",to:"n_preventing",s:"moderate",n:"Saving lives through rapid response"},
+  // === UN DECADE <> FATAL 5 ===
+  {from:"u_users",to:"f_speed",s:"strong",n:"Speed behaviour campaigns"},
+  {from:"u_users",to:"f_seatbelts",s:"strong",n:"Seatbelt and helmet compliance campaigns"},
+  {from:"u_users",to:"f_impairment",s:"strong",n:"Alcohol and drug driving campaigns"},
+  {from:"u_users",to:"f_distraction",s:"moderate",n:"Driver attention and awareness"},
+  {from:"u_users",to:"f_careless",s:"moderate",n:"Driving standards and road sharing"},
+  {from:"u_management",to:"f_speed",s:"moderate",n:"Speed limit legislation and data"},
+  {from:"u_management",to:"f_impairment",s:"moderate",n:"Legal limits and testing frameworks"},
+  {from:"u_vehicles",to:"f_speed",s:"moderate",n:"ISA and speed limiting technology"},
+  {from:"u_vehicles",to:"f_seatbelts",s:"moderate",n:"Restraint system standards"},
+
+  // ================ RSF CONNECTIONS ================
+
+  // === RSF <> SAFE SYSTEM (designed alignment) ===
+  {from:"rsf_speed",to:"ss_speeds",s:"strong",n:"Direct design alignment. RSF Speed section includes: S1 Exceeding speed limit (14% of collisions), S2 Too fast for conditions/loss of control (17%), S3 Too slow, S4 Aggressive/dangerous/reckless (15%). Broader than old CF definition."},
+  {from:"rsf_speed",to:"ss_users",s:"strong",n:"Speed choice is fundamentally a user behaviour. S4 (aggressive/reckless) bridges speed and user behaviour."},
+  {from:"rsf_speed",to:"ss_roads",s:"moderate",n:"Road design influences speed choice. Self-explaining roads reduce inappropriate speed without enforcement."},
+  {from:"rsf_behaviour",to:"ss_users",s:"strong",n:"Direct alignment. Includes: B4 Ineffective observation (48-58% of all collisions, the single most common RSF), B3 Overshot junction/poor manoeuvre (12-24%), B1 Failed to comply with signs/signals, B2 Passing too close, B5 Inexperienced/learner, B6 Sudden braking, B7 Following too close."},
+  {from:"rsf_behaviour",to:"ss_speeds",s:"moderate",n:"B4 Ineffective observation often co-occurs with speed factors. Poor observation at speed dramatically reduces available reaction time."},
+  {from:"rsf_distraction",to:"ss_users",s:"strong",n:"Direct alignment. Includes: D1 Affected by alcohol (7-8%), D2 Affected by drugs, D3 Fatigue/fell asleep, D5 Illness/disability (10% in fatals), D6/D7 Distraction inside/outside vehicle (5-11%)."},
+  {from:"rsf_road",to:"ss_roads",s:"strong",n:"Direct alignment. Includes: R1 Road layout, R2 Road surface slippery due to weather (6-11%), R3 Inadequate signs/markings, R4 Defective traffic signals. Only 16-22% of collisions assigned a road factor."},
+  {from:"rsf_road",to:"ss_speeds",s:"moderate",n:"Road design directly influences achievable and appropriate speeds. Road factors and speed factors frequently co-occur."},
+  {from:"rsf_nmru",to:"ss_users",s:"strong",n:"Covers pedestrian, cyclist, equestrian, and PPT-specific factors: careless/in a hurry (3-8%), hard to see (1-6%), wrong use of crossing, walking/riding in carriageway. Section doubled in recording frequency under direct RSF collection."},
+  {from:"rsf_nmru",to:"ss_roads",s:"moderate",n:"Non-motorised user safety heavily dependent on road infrastructure: crossings, segregation, lighting."},
+  {from:"rsf_vehicles",to:"ss_vehicles",s:"strong",n:"Direct alignment. Includes vehicle defects (tyres, brakes, lights, steering), overloaded vehicles. Consistently the lowest-recorded RSF section at 4-6% of collisions."},
+
+  // === RSF <> FATAL 5 ===
+  {from:"rsf_speed",to:"f_speed",s:"strong",n:"Direct mapping. S1 (exceeding limit) + S2 (too fast for conditions) are the core speed factors. S4 (aggressive/reckless) also sits here, broadening the definition beyond the old Fatal 4."},
+  {from:"rsf_speed",to:"f_careless",s:"strong",n:"S4 (aggressive/dangerous/reckless) bridges speed and careless driving. 26% of collisions (CF-mapped) but dropping to 15% under direct RSF recording."},
+  {from:"rsf_behaviour",to:"f_careless",s:"strong",n:"B4 Ineffective observation and B3 Overshot junction are primary careless driving indicators. B2 Passing too close (1-10%) directly targets close-pass behaviours."},
+  {from:"rsf_behaviour",to:"f_speed",s:"moderate",n:"B6 Sudden braking and B7 Following too close often co-occur with speed factors."},
+  {from:"rsf_behaviour",to:"f_seatbelts",s:"moderate",n:"Behavioural non-compliance: seatbelt wearing is captured in collision circumstances rather than RSFs directly, but B5 Inexperience correlates with lower wearing rates."},
+  {from:"rsf_behaviour",to:"f_distraction",s:"moderate",n:"B4 Ineffective observation overlaps significantly with distraction: the officer must judge whether failure to observe was due to distraction or simple error."},
+  {from:"rsf_distraction",to:"f_impairment",s:"strong",n:"D1 Affected by alcohol and D2 Affected by drugs are the direct RSF equivalents of the Fatal 5 impairment category."},
+  {from:"rsf_distraction",to:"f_distraction",s:"strong",n:"D6/D7 Distraction from inside/outside vehicle (5-11%) directly maps. Includes mobile phone use, sat nav, passengers, external events."},
+  {from:"rsf_distraction",to:"f_careless",s:"moderate",n:"D3 Fatigue and D5 Illness/disability contribute to careless driving patterns but are not wilful non-compliance."},
+  {from:"rsf_road",to:"f_speed",s:"moderate",n:"Road layout and surface conditions influence speed-related collisions. Slippery surfaces interact with inappropriate speed."},
+  {from:"rsf_road",to:"f_careless",s:"moderate",n:"Road factors can mitigate or exacerbate careless driving consequences. Junction design directly affects overshot junction rates."},
+  {from:"rsf_nmru",to:"f_careless",s:"strong",n:"Close passing, failure to give way to VRUs, and aggressive behaviour toward non-motorised users are careless driving behaviours."},
+  {from:"rsf_vehicles",to:"f_seatbelts",s:"moderate",n:"Vehicle restraint system defects and seatbelt reminder technology failures sit in the vehicle RSF section."},
+  {from:"rsf_vehicles",to:"f_speed",s:"moderate",n:"Vehicle defects (brakes, tyres) directly affect stopping ability and speed-related collision outcomes."},
+
+  // === RSF <> 6 E's ===
+  {from:"rsf_speed",to:"e_engineering",s:"strong",n:"Engineering interventions directly target RSF Speed factors: traffic calming reduces S2, road design addresses S1"},
+  {from:"rsf_speed",to:"e_enforcement",s:"strong",n:"S1 (exceeding limit) is the primary enforcement target. Camera technology directly measures this RSF."},
+  {from:"rsf_speed",to:"e_education",s:"strong",n:"Speed awareness courses target S2 (too fast for conditions). School programmes address young driver speed risk."},
+  {from:"rsf_speed",to:"e_evaluation",s:"strong",n:"RSF Speed data IS the evaluation metric. Trend analysis of S1-S4 factors measures intervention effectiveness."},
+  {from:"rsf_speed",to:"e_engagement",s:"moderate",n:"Community Speedwatch and employer fleet programmes address speed culture change."},
+  {from:"rsf_behaviour",to:"e_education",s:"strong",n:"B4 Ineffective observation is addressable through hazard perception training, driver education, cycling proficiency."},
+  {from:"rsf_behaviour",to:"e_enforcement",s:"strong",n:"B1 Failed to comply with signs/signals, B2 Passing too close (Op Snap), B3 Poor manoeuvre are enforcement targets."},
+  {from:"rsf_behaviour",to:"e_engagement",s:"strong",n:"Behaviour change campaigns, Exchanging Places, employer duty of care programmes."},
+  {from:"rsf_behaviour",to:"e_evaluation",s:"strong",n:"B-section RSF trends are the primary measure of educational and engagement intervention effectiveness."},
+  {from:"rsf_behaviour",to:"e_engineering",s:"moderate",n:"Junction design can reduce B3 (overshot junction). Segregation reduces B2 (passing too close)."},
+  {from:"rsf_distraction",to:"e_enforcement",s:"strong",n:"D1/D2 (alcohol/drugs) enforcement through roadside testing. D6/D7 (distraction) through phone detection cameras."},
+  {from:"rsf_distraction",to:"e_education",s:"strong",n:"Rehabilitation courses for D1/D2. Awareness campaigns for D6/D7. Fatigue management for D3."},
+  {from:"rsf_distraction",to:"e_evaluation",s:"strong",n:"D-section RSF data directly measures impairment and distraction trends. BAC prevalence in fatals is key metric."},
+  {from:"rsf_distraction",to:"e_engagement",s:"moderate",n:"Night-time economy partnerships (D1), employer fatigue policies (D3), tech sector phone-free partnerships (D6/D7)."},
+  {from:"rsf_distraction",to:"e_emergency",s:"moderate",n:"Impaired driver collisions (D1/D2) often at antisocial hours with complex clinical presentations."},
+  {from:"rsf_road",to:"e_engineering",s:"strong",n:"R-section factors are directly addressable through engineering: road layout, surface maintenance, signs/markings, signals."},
+  {from:"rsf_road",to:"e_evaluation",s:"strong",n:"R-section RSF data identifies infrastructure deficiencies. Route risk assessment uses this data."},
+  {from:"rsf_road",to:"e_engagement",s:"moderate",n:"Community reporting of road defects feeds into R-section factor reduction."},
+  {from:"rsf_nmru",to:"e_engineering",s:"strong",n:"P-section factors directly addressed by VRU infrastructure: crossings, segregated lanes, lighting, visibility improvements."},
+  {from:"rsf_nmru",to:"e_education",s:"strong",n:"Pedestrian and cyclist training, Bikeability, school crossing patrols."},
+  {from:"rsf_nmru",to:"e_engagement",s:"moderate",n:"Walking and cycling advocacy groups, active travel promotion."},
+  {from:"rsf_nmru",to:"e_evaluation",s:"moderate",n:"P-section RSF trends measure VRU safety intervention effectiveness."},
+  {from:"rsf_vehicles",to:"e_engineering",s:"strong",n:"V-section factors addressed by vehicle design standards, NCAP, and maintenance requirements."},
+  {from:"rsf_vehicles",to:"e_enforcement",s:"strong",n:"Roadworthiness checks, MOT compliance, commercial vehicle inspections target V-section factors."},
+  {from:"rsf_vehicles",to:"e_evaluation",s:"moderate",n:"V-section RSF data measures vehicle safety standard compliance."},
+
+  // === RSF <> NPCC ===
+  {from:"rsf_speed",to:"n_preventing",s:"strong",n:"Speed factor reduction directly prevents death: S-section RSFs are the primary prevention metric."},
+  {from:"rsf_speed",to:"n_tackling",s:"strong",n:"S1 (exceeding limit) and S4 (aggressive/reckless) are criminal offences."},
+  {from:"rsf_speed",to:"n_technology",s:"strong",n:"Camera technology directly measures and enforces S1. Telematics addresses S2."},
+  {from:"rsf_speed",to:"n_changing",s:"strong",n:"Reducing S-section prevalence requires cultural shift on speed acceptability."},
+  {from:"rsf_behaviour",to:"n_changing",s:"strong",n:"B-section reduction requires changing driver attitudes, observation skills, and road sharing behaviour."},
+  {from:"rsf_behaviour",to:"n_preventing",s:"strong",n:"B4 (ineffective observation) is the most common factor: improving it prevents the most collisions."},
+  {from:"rsf_behaviour",to:"n_tackling",s:"moderate",n:"B1 (failed to comply with signs) is an offence. B2 (passing too close) targetable through Op Snap."},
+  {from:"rsf_distraction",to:"n_tackling",s:"strong",n:"D1/D2 (alcohol/drugs) are criminal offences. D6/D7 (phone use) increasingly enforced."},
+  {from:"rsf_distraction",to:"n_preventing",s:"strong",n:"Removing impaired and distracted drivers prevents harm."},
+  {from:"rsf_distraction",to:"n_technology",s:"strong",n:"Roadside drug testing, phone detection cameras, alcohol interlocks."},
+  {from:"rsf_distraction",to:"n_changing",s:"moderate",n:"Social unacceptability of drink/drug driving. Phone-free driving norms."},
+  {from:"rsf_road",to:"n_preventing",s:"moderate",n:"R-section factor reduction through engineering prevents harm regardless of user behaviour."},
+  {from:"rsf_road",to:"n_technology",s:"moderate",n:"ITS, smart infrastructure, connected vehicle technology."},
+  {from:"rsf_nmru",to:"n_preventing",s:"strong",n:"P-section reduction directly prevents VRU deaths and serious injuries."},
+  {from:"rsf_nmru",to:"n_changing",s:"moderate",n:"Changing driver attitudes toward VRUs. Mutual respect campaigns."},
+  {from:"rsf_vehicles",to:"n_technology",s:"moderate",n:"Vehicle technology innovation: ADAS, AEB, ISA address V-section factors."},
+  {from:"rsf_vehicles",to:"n_preventing",s:"moderate",n:"Vehicle safety standards prevent harm in collisions."},
+
+  // === RSF <> UN DECADE ===
+  {from:"rsf_speed",to:"u_users",s:"strong",n:"Speed behaviour is a user factor: UN Safer Road Users encompasses speed campaigns."},
+  {from:"rsf_speed",to:"u_management",s:"strong",n:"Speed limit legislation and enforcement frameworks sit under Road Safety Management."},
+  {from:"rsf_behaviour",to:"u_users",s:"strong",n:"Behaviour and inexperience factors are the core of the UN Safer Road Users pillar."},
+  {from:"rsf_distraction",to:"u_users",s:"strong",n:"Impairment and distraction are user behaviours addressed by UN campaigns."},
+  {from:"rsf_distraction",to:"u_management",s:"moderate",n:"Legal frameworks for alcohol limits, drug testing, phone use."},
+  {from:"rsf_road",to:"u_roads",s:"strong",n:"Direct alignment: R-section RSFs measure the safety of road infrastructure."},
+  {from:"rsf_road",to:"u_management",s:"moderate",n:"Road maintenance and design standards sit under management framework."},
+  {from:"rsf_nmru",to:"u_roads",s:"strong",n:"VRU safety factors directly measure the effectiveness of safer roads and mobility."},
+  {from:"rsf_nmru",to:"u_users",s:"moderate",n:"Pedestrian and cyclist behaviour factors overlap with safer road users."},
+  {from:"rsf_vehicles",to:"u_vehicles",s:"strong",n:"Direct alignment: V-section RSFs measure vehicle safety compliance."},
+  {from:"rsf_vehicles",to:"u_management",s:"moderate",n:"Vehicle standards legislation and MOT framework."}
+];
+
+const fOrder=["unDecade","safeSystem","rsf","es","npcc","fatal5"];
+let st={selected:null,viewMode:"explorer",pairA:"rsf",pairB:"fatal5"};
+
+function getItem(id){for(const fw of Object.values(FW)){const i=fw.items.find(x=>x.id===id);if(i)return i}return null}
+function getFw(id){for(const[k,fw]of Object.entries(FW))if(fw.items.find(x=>x.id===id))return{key:k,...fw};return null}
+function getConns(id){const m=new Map();C.forEach(c=>{if(c.from===id)m.set(c.to,{strength:c.s,note:c.n});else if(c.to===id)m.set(c.from,{strength:c.s,note:c.n})});return m}
+function getDetails(id){return C.filter(c=>c.from===id||c.to===id).map(c=>{const o=c.from===id?c.to:c.from;return{...c,otherId:o,otherItem:getItem(o),otherFw:getFw(o)}})}
+
+function switchView(m){st.viewMode=m;st.selected=null;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===m));
+['explorer','layers','matrix'].forEach(v=>document.getElementById('view-'+v).style.display=v===m?'':'none');
+if(m==='explorer')renderExplorer();else if(m==='layers')renderLayers();else renderMatrix()}
+
+function selectItem(id){st.selected=st.selected===id?null:id;renderExplorer()}
+function selectFromLayer(id){st.selected=id;switchView('explorer')}
+
+function renderExplorer(){const el=document.getElementById('view-explorer');const cn=st.selected?getConns(st.selected):new Map();let h='';
+fOrder.forEach(fk=>{const fw=FW[fk];h+=`<div class="fw-row"><div class="fw-label" style="color:${fw.color}">${fw.layer}: ${fw.name}</div><div class="fw-items">`;
+fw.items.forEach(item=>{const isSel=st.selected===item.id;const conn=cn.get(item.id);const isCon=!!conn;const dim=st.selected&&!isSel&&!isCon;
+let cls='fw-item',sty='';
+if(isSel){cls+=' selected';sty=`border-color:${fw.color};background:${fw.color}30;`}
+else if(isCon){cls+=' connected';sty=`border-color:${conn.strength==='strong'?fw.color+'aa':fw.color+'55'};`}
+else if(dim){cls+=' dimmed'}
+let dot=isCon?`<span class="conn-dot ${conn.strength}"></span>`:'';
+h+=`<button class="${cls}" style="${sty}" onclick="selectItem('${item.id}')">${dot}${item.label}</button>`});
+h+='</div></div>'});
+if(!st.selected){h+='<p class="hint">Select any item from any framework to see all its connections across the other five frameworks.</p>'}
+else{const si=getItem(st.selected),sf=getFw(st.selected),det=getDetails(st.selected),fc=new Set(det.map(d=>d.otherFw.key)).size;
+h+=`<div class="detail-panel" style="border:1px solid ${sf.color}33"><div class="detail-header"><div class="detail-bar" style="background:${sf.color}"></div><div><h3 class="detail-title">${si.label}</h3><span class="detail-fw" style="color:${sf.color}">${sf.name}</span></div></div>`;
+h+=`<div class="detail-count">${det.length} connections across ${fc} frameworks</div>`;
+fOrder.filter(fk=>fk!==sf.key).forEach(fk=>{const fw=FW[fk];const fd=det.filter(d=>d.otherFw.key===fk);if(!fd.length)return;
+const sorted=[...fd.filter(d=>d.s==='strong'),...fd.filter(d=>d.s==='moderate')];
+h+=`<div class="detail-group"><div class="detail-group-label" style="color:${fw.color}">${fw.shortName} (${fd.length} connections)</div>`;
+sorted.forEach(d=>{h+=`<div class="detail-conn ${d.s}"><div class="detail-conn-name">${d.otherItem.label}</div><div class="detail-conn-note">${d.n}</div></div>`});
+h+='</div>'});h+='</div>'}
+el.innerHTML=h}
+
+function renderLayers(){const el=document.getElementById('view-layers');let h='';
+fOrder.forEach((fk,idx)=>{const fw=FW[fk];
+h+=`<div class="layer-row" style="background:linear-gradient(135deg,${fw.color}0a 0%,${fw.color}04 100%);border:1px solid ${fw.color}22">`;
+h+=`<div class="layer-header"><span class="layer-type" style="color:${fw.color}">${fw.layer}</span><span class="layer-name">${fw.name}</span></div><div class="layer-items">`;
+fw.items.forEach(item=>{const tot=C.filter(c=>c.from===item.id||c.to===item.id).length;const str=C.filter(c=>(c.from===item.id||c.to===item.id)&&c.s==='strong').length;
+h+=`<div class="layer-item" onclick="selectFromLayer('${item.id}')">${item.label}<span class="layer-badge">${str}s ${tot-str}m</span></div>`});
+h+='</div>';if(idx<fOrder.length-1)h+='<div class="layer-arrow">&updownarrow;</div>';h+='</div>'});
+h+='<div class="layer-legend">Each badge shows connection counts: <strong style="color:#22c55e">s</strong> = strong, <strong style="color:#eab308">m</strong> = moderate. Click any item to explore in the Node Explorer.</div>';
+el.innerHTML=h}
+
+function renderMatrix(){const el=document.getElementById('view-matrix');const fwA=FW[st.pairA],fwB=FW[st.pairB];
+const aIds=fwA.items.map(i=>i.id),bIds=fwB.items.map(i=>i.id);
+const pc=C.filter(c=>(aIds.includes(c.from)&&bIds.includes(c.to))||(bIds.includes(c.from)&&aIds.includes(c.to)));
+let opts=(sel,excl)=>Object.entries(FW).filter(([k])=>!excl||k!==excl).map(([k,fw])=>`<option value="${k}" ${k===sel?'selected':''}>${fw.shortName}</option>`).join('');
+let h='<div class="matrix-controls"><span>Compare:</span>';
+h+=`<select onchange="st.pairA=this.value;if(st.pairA===st.pairB){st.pairB=Object.keys(FW).find(k=>k!==st.pairA)};renderMatrix()">${opts(st.pairA)}</select>`;
+h+='<span style="color:#555">&times;</span>';
+h+=`<select onchange="st.pairB=this.value;if(st.pairB===st.pairA){st.pairA=Object.keys(FW).find(k=>k!==st.pairB)};renderMatrix()">${opts(st.pairB,st.pairA)}</select>`;
+h+=`<span style="font-size:11px;color:#555">${pc.length} connections</span></div>`;
+h+='<div class="matrix-wrap"><table><thead><tr><th style="width:180px"></th>';
+fwB.items.forEach(i=>{h+=`<th style="color:${fwB.color}">${i.label}</th>`});h+='</tr></thead><tbody>';
+fwA.items.forEach(ri=>{h+=`<tr><td class="row-label" style="color:${fwA.color}">${ri.label}</td>`;
+fwB.items.forEach(ci=>{const conn=pc.find(c=>(c.from===ri.id&&c.to===ci.id)||(c.from===ci.id&&c.to===ri.id));
+let cc=conn?(conn.s==='strong'?'strong-cell':'moderate-cell'):'empty-cell';
+let dot=conn?`<div class="cell-dot ${conn.s}"></div>`:'';
+let tip=conn?`<div class="tooltip">${conn.n}</div>`:'';
+h+=`<td class="cell"><div class="cell-inner ${cc}">${dot}${tip}</div></td>`});h+='</tr>'});
+h+='</tbody></table></div><p class="hint">Hover over any cell to see the connection description. Green = strong, amber = moderate.</p>';
+el.innerHTML=h}
+
+renderExplorer();
+</script>
+</body>
+</html>
